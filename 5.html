@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>사과와 나</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta name="description" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리. 사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다.">
+    <meta property="og:title" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="thumbnail.png" />
+    <meta property="og:description" content="사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다." />
+    <meta property="og:video" content="thumbnail.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1200" />
+    <meta property="og:video:height" content="630" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="cursor.css">
+    <style>
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Medium';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Medium.woff') format('woff');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Bold';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            /* Start White (continuation from Ch 4) */
+            color: #000;
+            /* Start with black text for white bg */
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 2s ease-in-out, color 2s ease-in-out;
+            word-break: keep-all;
+        }
+
+        /* --- Visual Effects Layers --- */
+        .effect-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            transition: all 1s ease-in-out;
+        }
+
+        .blur-layer {
+            backdrop-filter: blur(30px);
+            opacity: 0;
+            z-index: 10;
+            transition: opacity 3s ease-out;
+        }
+
+        .white-out {
+            background-color: #fff;
+            opacity: 1;
+            /* Start fully white */
+            z-index: 100;
+            transition: opacity 3s ease-in;
+        }
+
+        /* --- Content --- */
+        .story-container {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+            /* text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); */
+        }
+
+        .story-line {
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            /* Bold font for subtitles */
+            font-weight: 500;
+            /* Enforce bold weight */
+            font-size: 1.5rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+            display: none;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-line.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-line-translation {
+            position: fixed;
+            left: 50%;
+            bottom: 15%;
+            width: 90%;
+            max-width: 800px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+
+            transform: translateX(-50%) translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .story-line-translation.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            display: block;
+        }
+
+        .keyword {
+            color: inherit;
+            font-weight: inherit;
+        }
+
+        /* Dark mode styles for later if needed */
+        body.dark-mode {
+            background-color: #000;
+            color: #fff;
+        }
+
+        body.dark-mode .story-line-translation {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="display: none;">사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리 (Apple and I: Interactive Web Story)</h1>
+
+    <div id="chapter-transition">
+        <div class="chapter-content">
+            <span class="chapter-number">제 5장</span><br>
+            <span class="chapter-title">사과와 ???</span>
+            <span class="chapter-title-english">Apple and ???</span>
+        </div>
+    </div>
+    <!-- Audio -->
+    <audio id="bgm-t5" src="t5.mp3" preload="auto"></audio>
+    <audio id="bgm-wind" src="Soft Wind.mp3" preload="auto" loop></audio>
+    <audio id="sfx-eat" src="e.mp3" preload="auto"></audio>
+    <audio id="sfx-h" src="h.mp3" preload="auto"></audio>
+
+    <!-- Visual Layers -->
+    <div id="white-layer" class="effect-layer white-out"></div>
+    <div id="green-bg" class="effect-layer green-bg"></div>
+    <img id="bg-foot" src="foot.png" class="effect-layer bg-image" alt="Foot">
+    <video id="bg-video-1" src="1.mp4" muted playsinline class="effect-layer bg-video light-blur-video"
+        data-parallax="0.05"></video>
+    <video id="bg-video-3" src="3.mp4" muted playsinline class="effect-layer bg-video" data-parallax="0.08"></video>
+    <video id="bg-video-5" src="5.mp4" muted playsinline class="effect-layer bg-video blur-video"
+        data-parallax="0.1"></video>
+    <video id="bg-video-2" src="2.mp4" muted playsinline class="effect-layer bg-video blur-video"
+        data-parallax="0.05"></video>
+    <video id="bg-video-7" src="7.mp4" muted playsinline class="effect-layer bg-video blur-video"
+        data-parallax="0.02"></video>
+    <div id="red-overlay" class="effect-layer red-overlay"></div>
+
+
+    <style>
+        .green-bg {
+            background: linear-gradient(to bottom, #87CEEB 0%, #228B22 100%);
+            /* Sky to Grass */
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+            z-index: 1;
+        }
+
+        .green-bg.visible {
+            opacity: 1;
+        }
+
+        .red-overlay {
+            background-color: rgba(255, 0, 0, 0.3);
+            mix-blend-mode: multiply;
+            opacity: 0;
+            z-index: 15;
+            transition: opacity 0.5s ease;
+        }
+
+        .bg-video {
+            object-fit: cover;
+            opacity: 0;
+            z-index: 2;
+            /* Above green-bg (1), below red-overlay (15) */
+            transition: opacity 2s ease-in-out;
+        }
+
+        .bg-video.visible {
+            opacity: 1;
+        }
+
+        .blur-video {
+            filter: blur(5px);
+            /* Reduced blur */
+            transform: scale(1.1);
+            /* Scale up slightly to hide blurred edges */
+        }
+
+        .light-blur-video {
+            filter: blur(3px);
+            transform: scale(1.05);
+        }
+
+        .bg-image {
+            object-fit: cover;
+            opacity: 0;
+            z-index: 2;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .bg-image.visible {
+            opacity: 1;
+        }
+
+
+
+        /* Shake Animation */
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+
+        /* Vibration Effect (Thump Thump) */
+        @keyframes vibrate-heavy {
+            0% {
+                transform: scale(1);
+            }
+
+            20% {
+                transform: scale(1.02) translateY(2px);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+
+            60% {
+                transform: scale(1.02) translateY(2px);
+            }
+
+            80% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .vibrate-heavy {
+            animation: vibrate-heavy 0.5s ease-in-out;
+            animation-iteration-count: 3;
+            /* Run exactly 3 times */
+        }
+
+        /* Crazy Flash Effect (Invert) */
+        @keyframes crazy-flash {
+            0% {
+                filter: invert(0);
+            }
+
+            50% {
+                filter: invert(1);
+            }
+
+            100% {
+                filter: invert(0);
+            }
+        }
+
+        .crazy-flash {
+            animation: crazy-flash 0.1s infinite;
+            /* 10Hz strobe */
+        }
+
+        /* Text Styles for this chapter */
+        body {
+            color: #000;
+            /* Default black text for white/bright BG */
+        }
+
+        /* Chapter Transition Screen */
+        #chapter-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 2s ease-in-out;
+            pointer-events: none;
+        }
+
+        #chapter-transition.hidden {
+            opacity: 0;
+        }
+
+        .chapter-content {
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .chapter-content .chapter-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'YeolrinMyeongjo-Bold', serif;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-content .chapter-title {
+            font-size: 3rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-content .chapter-title-english {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            margin-top: 0.5rem;
+        }
+    </style>
+
+    <!-- Cursor handled by interactive.js -->
+    <!-- <div class="custom-cursor" id="custom-cursor"></div> -->
+
+    <!-- Content -->
+    <div class="story-container" id="story-container">
+
+        <!-- Sequence 1: Intro -->
+        <div class="story-line" data-duration="4000">
+            따뜻한 내 발에 낯선 촉감이 느껴졌다.<br>
+            “이게 뭐지?”
+        </div>
+        <div class="story-line-translation">
+            I felt a strange sensation on my warm feet.<br>
+            "What is this?"
+        </div>
+
+        <!-- Sequence 2: Green Field -->
+        <div class="story-line" data-duration="3900">
+            눈 앞에 초록빛 들판이 펼쳐졌다.<br>
+            끝이 보이지 않는다.
+        </div>
+        <div class="story-line-translation">
+            A green field spread out before my eyes.<br>
+            I couldn't see the end.
+        </div>
+
+        <div class="story-line" data-duration="4000">
+            드넓은 푸른 들판에 바람이 분다.<br>
+            나무 한 그루가 꼿꼿이 서 있다.
+        </div>
+        <div class="story-line-translation">
+            The wind blows across the vast green field.<br>
+            A single tree stands tall.
+        </div>
+
+        <div class="story-line" data-duration="2900">
+            마치 초월신 같은 모습으로 나를 바라본다.
+        </div>
+        <div class="story-line-translation">
+            It looks down at me like a transcendent god.
+        </div>
+
+        <!-- Sequence 3: Apple Tree -->
+        <div class="story-line" data-duration="2700">
+            나는 나무에 다가갔다.<br>
+            사과나무였다.
+        </div>
+        <div class="story-line-translation">
+            I approached the tree.<br>
+            It was an apple tree.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            새빨간 <span class="keyword">사과</span>들이 송송 맺혀 있었다.<br>
+            유리처럼 매끈하고, 이상할 만큼 아름다웠다.
+        </div>
+        <div class="story-line-translation">
+            Bright red <span class="keyword">apples</span> were clustered on it.<br>
+            Smooth like glass, and strangely beautiful.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            고작 <span class="keyword">사과</span>에게 ‘아름답다’는 단어를 붙여도 될까 싶지만,<br>
+            그게 지금 내가 할 수 있는 최선의 표현이었다.
+        </div>
+        <div class="story-line-translation">
+            I wondered if I could use the word 'beautiful' for just an <span class="keyword">apple</span>,<br>
+            but that was the best expression I could use right now.
+        </div>
+
+        <div class="story-line" data-duration="6000">
+            <span class="keyword">사과</span>는 햇빛에 닿아 윤이 났다.<br>
+            나는 <span class="keyword">사과</span>에서 눈을 뗄 수 없었다.<br>
+            황홀했다.
+        </div>
+        <div class="story-line-translation">
+            The <span class="keyword">apples</span> glistened in the sunlight.<br>
+            I couldn't take my eyes off the <span class="keyword">apples</span>.<br>
+            It was mesmerizing.
+        </div>
+
+        <!-- Sequence 4: Mom -->
+        <div class="story-line" data-duration="4000">
+            그때, 나무에 매달린 긴 그네 위에 누군가 앉아 있었다.<br>
+            엄마다.
+        </div>
+        <div class="story-line-translation">
+            Then, someone was sitting on a long swing hanging from the tree.<br>
+            It's Mom.
+        </div>
+
+        <div class="story-line" data-duration="2900">
+            나는 크게 외쳤다.<br>
+            “엄마아아!”
+        </div>
+        <div class="story-line-translation">
+            I shouted loudly.<br>
+            "Mom!"
+        </div>
+
+        <div class="story-line" data-duration="5200">
+            울음소리가 들판에 퍼졌다.<br>
+            갓 태어난 아기의 울음 같았다.<br>
+            그 한마디로 나는 어린아이가 되었다.
+        </div>
+        <div class="story-line-translation">
+            The sound of crying spread across the field.<br>
+            It sounded like the cry of a newborn baby.<br>
+            With that one word, I became a child.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            엄마가 고개를 돌렸으면 좋겠다.<br>
+            엄마가 나에게 말을 걸어주었으면 좋겠다.
+        </div>
+        <div class="story-line-translation">
+            I wished Mom would turn her head.<br>
+            I wished Mom would talk to me.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            엄마와 오순도순 이야기하고 싶었다.<br>
+            엄마가 깎아주신 <span class="keyword">사과</span>를 베어 물고 싶었다.
+        </div>
+        <div class="story-line-translation">
+            I wanted to talk happily with Mom.<br>
+            I wanted to bite into the <span class="keyword">apple</span> Mom peeled for me.
+        </div>
+
+        <div class="story-line" data-duration="5100">
+            잇몸이 부서져도 상관없었다.<br>
+            아삭거리는 소리가 머릿속을 가득 채워도 상관없었다.
+        </div>
+        <div class="story-line-translation">
+            It didn't matter if my gums broke.<br>
+            It didn't matter if the crunching sound filled my head.
+        </div>
+
+        <div class="story-line" data-duration="4000">
+            그저, 엄마가 나를 봐주었으면 좋겠다고 생각했다.
+        </div>
+        <div class="story-line-translation">
+            I just wanted Mom to look at me.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            엄마는 끝까지 나를 보지 않았다.
+        </div>
+        <div class="story-line-translation">
+            Mom didn't look at me until the end.
+        </div>
+
+    </div>
+
+
+    <script src="interactive.js"></script>
+    <script>
+        // Chapter Transition Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const transitionScreen = document.getElementById('chapter-transition');
+                if (transitionScreen) {
+                    transitionScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        transitionScreen.style.display = 'none';
+                    }, 2000); // Wait for transition to finish
+                }
+            }, 1000); // Show for 1 second
+        });
+
+        // Layers
+        const whiteLayer = document.getElementById('white-layer');
+        const greenBg = document.getElementById('green-bg');
+        const redOverlay = document.getElementById('red-overlay');
+        const bgFoot = document.getElementById('bg-foot');
+        const bgVideo1 = document.getElementById('bg-video-1');
+        const bgVideo3 = document.getElementById('bg-video-3');
+        const bgVideo5 = document.getElementById('bg-video-5');
+        const bgVideo2 = document.getElementById('bg-video-2');
+        const bgVideo7 = document.getElementById('bg-video-7');
+
+        const bgmT5 = document.getElementById('bgm-t5');
+        const bgmWind = document.getElementById('bgm-wind');
+        const sfxEat = document.getElementById('sfx-eat');
+
+        // Initialize Cursor Text
+        function setCursorClick() {
+            const cursor = document.querySelector('.custom-cursor');
+            if (cursor) {
+                cursor.classList.add('click-mode');
+                cursor.setAttribute('data-text', 'CLICK');
+            }
+        }
+
+        function resetCursor() {
+            const cursor = document.querySelector('.custom-cursor');
+            if (cursor) {
+                cursor.classList.remove('click-mode');
+                cursor.removeAttribute('data-text');
+            }
+        }
+
+        // Wait for interactive.js to create the cursor
+        // setTimeout(setCursorClick, 100);
+
+        // Story Sequencer
+        function startStory() {
+            const lines = document.querySelectorAll('.story-line');
+            let currentIndex = 0;
+
+            // Initial Effect: Fade out white layer
+            setTimeout(() => {
+                whiteLayer.style.opacity = '0';
+            }, 500);
+
+            // Play BGM
+            if (bgmT5) {
+                bgmT5.volume = 0.5;
+                bgmT5.play().catch(e => console.log("BGM play failed", e));
+            }
+            if (bgmWind) {
+                bgmWind.volume = 1.0; // Reverted to standard max volume
+                bgmWind.play().catch(e => console.log("Wind play failed", e));
+            }
+
+            function showNextLine() {
+                if (currentIndex >= lines.length) return;
+
+                const line = lines[currentIndex];
+                const translation = line.nextElementSibling;
+                const duration = parseInt(line.dataset.duration) || 3000;
+
+                // Effects based on index
+                handleEffects(currentIndex);
+
+                line.classList.add('visible');
+                line.style.display = 'block';
+
+                if (translation && translation.classList.contains('story-line-translation')) {
+                    translation.classList.add('visible');
+                    translation.style.display = 'block';
+                }
+
+                setTimeout(() => {
+                    line.classList.remove('visible');
+                    if (translation && translation.classList.contains('story-line-translation')) {
+                        translation.classList.remove('visible');
+                    }
+
+                    setTimeout(() => {
+                        line.style.display = 'none';
+                        if (translation && translation.classList.contains('story-line-translation')) {
+                            translation.style.display = 'none';
+                        }
+
+                        currentIndex++;
+                        if (currentIndex < lines.length) {
+                            showNextLine();
+                        } else {
+                            console.log("End of Chapter 5");
+                            // End scene: Fade to black
+                            document.body.style.backgroundColor = '#000';
+                            whiteLayer.style.opacity = '0'; // Ensure white is gone
+                            greenBg.style.opacity = '0';
+                        }
+                    }, 1000); // Fade out time
+                }, duration);
+            }
+
+            showNextLine();
+        }
+
+        function handleEffects(index) {
+            // Reset temporary effects
+            document.body.classList.remove('shake');
+            document.body.classList.remove('vibrate-heavy');
+            // Note: crazy-flash is persistent across 11-14, so don't remove it here automatically unless we handle it carefully.
+            // Actually, handleEffects is called for EACH line. If we want it to persist, we shouldn't remove it here, OR we re-add it in the cases.
+            // Let's remove it only if index is NOT 11, 12, 13, 14.
+            if (index < 11 || index > 14) {
+                document.body.classList.remove('crazy-flash');
+                document.body.style.animationDuration = ''; // Reset duration
+            }
+
+            redOverlay.style.opacity = '0';
+
+            switch (index) {
+                case 0: // Intro (Foot image)
+                    if (bgFoot) {
+                        bgFoot.classList.add('visible');
+                    }
+                    break;
+
+                case 1: // Green field appears (Video 1 show, paused)
+                    if (bgFoot) {
+                        bgFoot.classList.remove('visible'); // Hide foot
+                    }
+                    if (bgVideo1) {
+                        bgVideo1.classList.add('visible');
+                        bgVideo1.pause(); // Ensure it's paused initially
+                        bgVideo1.currentTime = 0; // Start from beginning
+                    }
+                    break;
+
+                case 2: // Wind blows (Video 1 play)
+                    if (bgVideo1) {
+                        bgVideo1.play().catch(e => console.log("Video 1 play failed", e));
+                    }
+                    break;
+
+                case 4: // Apple tree (Video 3 start)
+                    if (bgVideo3) {
+                        bgVideo3.classList.add('visible');
+                        bgVideo3.play().catch(e => console.log("Video 3 play failed", e));
+                    }
+                    break;
+
+                case 5: // Red apples (Video 5 start)
+                    if (bgVideo5) {
+                        bgVideo5.classList.add('visible');
+                        bgVideo5.play().catch(e => console.log("Video 5 play failed", e));
+                    }
+                    break;
+
+                case 7: // Sunlight effect
+                    whiteLayer.style.transition = 'opacity 2s ease-in-out';
+                    whiteLayer.style.opacity = '0.6';
+                    setTimeout(() => {
+                        whiteLayer.style.opacity = '0';
+                    }, 2500);
+                    break;
+
+                case 8: // Mom on swing (Video 2 start)
+                    if (bgVideo2) {
+                        bgVideo2.classList.add('visible');
+                        bgVideo2.play().catch(e => console.log("Video 2 play failed", e));
+                    }
+                    break;
+
+                case 9: // Shouting Mom ("Mom!")
+                    document.body.classList.add('vibrate-heavy'); // Thump Thump Thump
+                    break;
+
+                case 10: // Crying sound spread
+                    // No effect
+                    break;
+                case 11: // Mom turn head... (Start Crazy Flash - Slow)
+                    document.body.classList.add('crazy-flash');
+                    document.body.style.animationDuration = '3.0s'; // Very slow start
+                    break;
+                case 12: // Talk to Mom... (Faster)
+                    document.body.classList.add('crazy-flash');
+                    document.body.style.animationDuration = '1.5s'; // Accelerating but slower than before
+                    if (sfxEat) {
+                        sfxEat.currentTime = 0;
+                        sfxEat.play().catch(e => console.log("SFX Eat play failed", e));
+                    }
+                    // Play h.mp3
+                    const sfxH = document.getElementById('sfx-h');
+                    if (sfxH) {
+                        sfxH.currentTime = 0;
+                        let playCount = 1;
+                        const maxPlays = 4;
+
+                        // Volume ramp: 0.25, 0.5, 0.75, 1.0
+                        sfxH.volume = 0.25;
+
+                        // Remove previous listeners to avoid stacking
+                        sfxH.onended = null;
+
+                        sfxH.onended = function () {
+                            if (playCount < maxPlays) {
+                                playCount++;
+                                // Increase volume for next play
+                                this.volume = Math.min(1.0, 0.25 + (0.25 * (playCount - 1)));
+
+                                this.currentTime = 0;
+                                this.play().catch(e => console.log("SFX H repeat failed", e));
+                            }
+                        };
+
+                        sfxH.play().catch(e => console.log("SFX H play failed", e));
+                    }
+                    break;
+                case 13: // Crunching sound / Gums broke (Fast)
+                    document.body.classList.add('crazy-flash');
+                    document.body.style.animationDuration = '0.5s'; // Fast but readable
+                    redOverlay.style.opacity = '0.5'; // Pain/Red flash + Crazy Flash
+                    break;
+                case 14: // Just wanted Mom to look (Super Fast)
+                    document.body.classList.add('crazy-flash');
+                    document.body.style.animationDuration = '0.2s'; // Crazy fast but not blinding
+                    if (bgVideo7) {
+                        bgVideo7.classList.add('visible');
+                        bgVideo7.play().catch(e => console.log("Video 7 play failed", e));
+                    }
+                    if (bgVideo3) {
+                        bgVideo3.classList.remove('visible'); // Hide 3.mp4
+                    }
+                    break;
+
+                case 15: // Mom didn't look (End) - Fade Out
+                    document.body.style.backgroundColor = '#000'; // Fade bg to black
+                    document.body.style.color = '#fff'; // Text to white (if needed, though it might fade out too)
+
+                    // Fade out all visuals
+                    if (bgVideo7) bgVideo7.classList.remove('visible');
+                    if (bgVideo2) bgVideo2.classList.remove('visible');
+                    if (bgVideo5) bgVideo5.classList.remove('visible');
+                    if (bgVideo3) bgVideo3.classList.remove('visible');
+                    if (bgVideo1) bgVideo1.classList.remove('visible');
+                    if (bgFoot) bgFoot.classList.remove('visible');
+
+                    // Ensure white layer is gone (should be already)
+                    whiteLayer.style.opacity = '0';
+
+                    // Transition to Chapter 6
+                    setTimeout(() => {
+                        setCursorClick();
+                        document.body.style.cursor = 'pointer';
+                        document.addEventListener('click', () => {
+                            window.location.href = '6.html';
+                        }, { once: true });
+                    }, 2000);
+                    break;
+            }
+        }
+
+        // Start on click
+        document.addEventListener('click', () => {
+            if (whiteLayer.style.opacity !== '0') {
+                resetCursor();
+                startStory();
+            }
+        }, { once: true });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>사과와 나</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta name="description" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리. 사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다.">
+    <meta property="og:title" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="thumbnail.png" />
+    <meta property="og:description" content="사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다." />
+    <meta property="og:video" content="thumbnail.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1200" />
+    <meta property="og:video:height" content="630" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="cursor.css">
+    <style>
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Medium';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Medium.woff') format('woff');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Bold';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            /* Start Black (continuation from Ch 5) */
+            color: #fff;
+            /* White text for black bg */
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 2s ease-in-out, color 2s ease-in-out;
+            word-break: keep-all;
+        }
+
+        /* --- Visual Effects Layers --- */
+        .effect-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            transition: all 1s ease-in-out;
+        }
+
+        /* --- Content --- */
+        .story-container {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .story-line {
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            /* Bold font for subtitles */
+            font-weight: 500;
+            /* Enforce bold weight */
+            font-size: 1.5rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+            display: none;
+            width: 100%;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-line.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-line-translation {
+            position: fixed;
+            left: 50%;
+            bottom: 15%;
+            width: 90%;
+            max-width: 800px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+
+            transform: translateX(-50%) translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .story-line-translation.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            display: block;
+        }
+
+        .keyword {
+            color: inherit;
+            font-weight: inherit;
+        }
+
+        /* Chapter Transition Screen */
+        #chapter-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 2s ease-in-out;
+            pointer-events: none;
+        }
+
+        #chapter-transition.hidden {
+            opacity: 0;
+        }
+
+        .chapter-content {
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .chapter-content .chapter-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'YeolrinMyeongjo-Bold', serif;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-content .chapter-title {
+            font-size: 3rem;
+            font-weight: normal;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-content .chapter-title-english {
+            font-size: 0.9rem;
+            font-weight: normal;
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="display: none;">사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리 (Apple and I: Interactive Web Story)</h1>
+
+    <div id="chapter-transition">
+        <div class="chapter-content">
+            <span class="chapter-number">제 6장</span><br>
+            <span class="chapter-title">사과, 그리고</span>
+            <span class="chapter-title-english">Apple, and ...</span>
+        </div>
+    </div>
+    <!-- Audio -->
+    <audio id="notification-sound" src="s.mp3" preload="auto"></audio>
+    <audio id="bgm-t6" src="t6.mp3" preload="auto"></audio>
+    <audio id="clock-sound" src="clock.mp3" preload="auto"></audio>
+    <audio id="end-music" src="end.mp3" preload="auto"></audio>
+    <audio id="return-sound" src="a.mp3" preload="auto"></audio>
+
+    <!-- Visual Layers -->
+    <!-- Black background is default body color -->
+    <video id="webcam-layer" class="effect-layer webcam-layer" autoplay playsinline muted></video>
+    <div id="white-layer" class="effect-layer white-out"></div> <!-- Optional flash? -->
+
+    <!-- UI Layers -->
+    <div id="notification-banner" class="ui-layer notification-banner">
+        <div class="noti-icon">💬</div>
+        <div class="noti-content">
+            <div class="noti-title">엄마</div>
+            <div class="noti-text">새로운 메시지가 도착했습니다.</div>
+        </div>
+    </div>
+
+    <div id="message-screen" class="ui-layer message-screen">
+        <div class="message-header">
+            <div class="back-btn">‹</div>
+            <div class="header-title">엄마</div>
+            <div class="header-menu">⋮</div>
+        </div>
+        <div class="message-body">
+            <div class="message-bubble received">
+                사과 사 간다.<br>
+                무거우니까 주차장에서 기다려.<br>
+                금방 갈게.
+            </div>
+            <div class="message-time">오전 10:47</div>
+        </div>
+    </div>
+
+    <!-- Clock Layer -->
+    <div id="clock-layer" class="clock-layer">
+        <div class="clock-hand hour-hand"></div>
+        <div class="clock-hand minute-hand"></div>
+        <div class="clock-hand second-hand"></div>
+        <div class="clock-center"></div>
+    </div>
+
+    <div id="ending-title" class="final-title">
+        사과와 나
+    </div>
+
+    <div id="ending-credits" class="final-title">
+        A Web Narrative by Han Pyeonggang
+        <div class="credits">
+            Story · Image Composition · Interaction<br>
+            2025
+        </div>
+        <img id="return-btn" class="return-btn" src="apple.png" alt="Return to Beginning">
+    </div>
+
+    <style>
+        .webcam-layer {
+            object-fit: cover;
+            opacity: 0;
+            z-index: 1;
+            /* Below UI (15) and text */
+            transform: scaleX(-1);
+            /* Mirror effect */
+            filter: grayscale(100%) brightness(0.2) blur(5px);
+            /* Black & White, Much Darker, Blurred */
+            transition: opacity 2s ease-in-out;
+        }
+
+        .webcam-layer.visible {
+            opacity: 1;
+        }
+
+        .ui-layer {
+            position: fixed;
+            z-index: 15;
+            font-family: 'Pretendard', sans-serif;
+            /* Modern font for UI */
+            pointer-events: none;
+        }
+
+        /* Notification Banner */
+        .notification-banner {
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-500%);
+            width: 90%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #000;
+        }
+
+        .notification-banner.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .noti-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .noti-content {
+            flex: 1;
+        }
+
+        .noti-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .noti-text {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* Message Screen */
+        .message-screen {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 300px;
+            height: 500px;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .message-screen.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .message-header {
+            background: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header-title {
+            font-weight: bold;
+        }
+
+        .message-body {
+            flex: 1;
+            background: #e5e5e5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            background: #fff;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border-top-left-radius: 2px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        /* Clock Layer */
+        .clock-layer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .clock-layer.visible {
+            opacity: 0.8;
+        }
+
+        .clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 2px;
+        }
+
+        .hour-hand {
+            width: 4px;
+            height: 180px;
+            transform: translateX(-50%) rotate(323.5deg);
+            /* 10:47 */
+        }
+
+        .minute-hand {
+            width: 2px;
+            height: 250px;
+            transform: translateX(-50%) rotate(282deg);
+            /* 47 min */
+        }
+
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+        }
+
+        /* Second Hand Style */
+        .second-hand {
+            width: 1px;
+            height: 280px;
+            background-color: #ff0000;
+            transform: translateX(-50%) rotate(0deg);
+            animation: clock-rotate 60s linear infinite;
+        }
+
+        @keyframes clock-rotate {
+            from {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            to {
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+
+        .final-title {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            font-size: 2rem;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 4s ease-in-out;
+            z-index: 50;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        #ending-title {
+            font-size: 5rem;
+            font-weight: 500;
+            color: #ff0000;
+            /* Red color for title */
+        }
+
+        .final-title.visible {
+            opacity: 1;
+        }
+
+        .credits {
+            margin-top: 20px;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .return-btn {
+            margin-top: 40px;
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            /* Initially hidden, fades in with parent but can have delay if needed */
+            pointer-events: none;
+            /* Disable clicking initially */
+        }
+
+        .return-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Ensure button is clickable even if parent has pointer-events: none */
+        #ending-credits {
+            pointer-events: none;
+        }
+
+        #ending-credits.visible {
+            pointer-events: auto;
+        }
+    </style>
+
+    <!-- Cursor handled by interactive.js -->
+    <!-- <div class="custom-cursor" id="custom-cursor"></div> -->
+
+    <!-- Content -->
+    <div class="story-container" id="story-container">
+
+        <!-- Sequence 1: Notification -->
+        <div class="story-line" data-duration="800">
+            “띠링.”
+        </div>
+        <div class="story-line-translation">
+            "Ding."
+        </div>
+
+        <div class="story-line" data-duration="2000">
+            핸드폰에서 문자 수신 알람이 울렸다.
+        </div>
+        <div class="story-line-translation">
+            A text message notification rang from my phone.
+        </div>
+
+        <div class="story-line" data-duration="1000">
+            엄마였다.
+        </div>
+        <div class="story-line-translation">
+            It was Mom.
+        </div>
+
+        <div class="story-line" data-duration="2500">
+            엄마가 사과를 시장에서 사 온다고 했다.
+        </div>
+        <div class="story-line-translation">
+            She said she was buying apples at the market.
+        </div>
+
+        <div class="story-line" data-duration="3000">
+            무거우니 주차장에서 기다리라고, 곧 간다고 적혀 있었다.
+        </div>
+        <div class="story-line-translation">
+            It said to wait in the parking lot because they were heavy, and she would be there soon.
+        </div>
+
+        <div class="story-line" data-duration="2500">
+            거울을 보니 눈 밑에 눈물 자국이 맺혀 있었다.
+        </div>
+        <div class="story-line-translation">
+            I looked in the mirror and saw tear stains under my eyes.
+        </div>
+
+        <div class="story-line" data-duration="1500">
+            나갈 채비를 했다.
+        </div>
+        <div class="story-line-translation">
+            I got ready to go out.
+        </div>
+
+        <div class="story-line" data-duration="5000">
+            <!-- Extended duration for final line -->
+            시간은 7월 7일 오전 10시 47분이었다.
+        </div>
+        <div class="story-line-translation">
+            The time was 10:47 AM on July 7th.
+        </div>
+
+    </div>
+
+
+    <script src="interactive.js"></script>
+    <script>
+        // Chapter Transition Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const transitionScreen = document.getElementById('chapter-transition');
+                if (transitionScreen) {
+                    transitionScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        transitionScreen.style.display = 'none';
+                        setCursorClick(); // Show CLICK cursor
+                    }, 2000); // Wait for transition to finish
+                }
+            }, 1000); // Show for 1 second
+
+            // Request Webcam Permission on Load
+            const webcamVideo = document.getElementById('webcam-layer');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        webcamVideo.srcObject = stream;
+                        webcamVideo.play();
+                    })
+                    .catch(function (error) {
+                        console.log("Webcam permission denied or error:", error);
+                    });
+            }
+        });
+
+        // Audio
+        const notificationSound = document.getElementById('notification-sound');
+        const bgmT6 = document.getElementById('bgm-t6');
+        const endMusic = document.getElementById('end-music');
+        const endingTitle = document.getElementById('ending-title');
+        const endingCredits = document.getElementById('ending-credits');
+        const returnBtn = document.getElementById('return-btn');
+        const clockSound = document.getElementById('clock-sound');
+
+        // UI Elements
+        const notificationBanner = document.getElementById('notification-banner');
+        const messageScreen = document.getElementById('message-screen');
+        const clockLayer = document.getElementById('clock-layer');
+        const webcamLayer = document.getElementById('webcam-layer');
+
+        // Initialize Cursor Text
+        function setCursorClick() {
+            const cursor = document.querySelector('.custom-cursor');
+            if (cursor) {
+                cursor.classList.add('click-mode');
+                cursor.setAttribute('data-text', 'CLICK');
+            }
+        }
+
+        function resetCursor() {
+            const cursor = document.querySelector('.custom-cursor');
+            if (cursor) {
+                cursor.classList.remove('click-mode');
+                cursor.removeAttribute('data-text');
+            }
+        }
+
+        // Wait for interactive.js to create the cursor
+        // setTimeout(setCursorClick, 100);
+
+        // Story Sequencer
+        function startStory() {
+            const lines = document.querySelectorAll('.story-line');
+            let currentIndex = 0;
+
+            // Play BGM
+            if (bgmT6) {
+                bgmT6.volume = 0.5;
+                bgmT6.play().catch(e => console.log("BGM play failed", e));
+            }
+
+            function showNextLine() {
+                if (currentIndex >= lines.length) return;
+
+                const line = lines[currentIndex];
+                const translation = line.nextElementSibling;
+                const duration = parseInt(line.dataset.duration) || 3000;
+
+                // Effects based on index
+                handleEffects(currentIndex);
+
+                line.classList.add('visible');
+                line.style.display = 'block';
+
+                if (translation && translation.classList.contains('story-line-translation')) {
+                    translation.classList.add('visible');
+                    translation.style.display = 'block';
+                }
+
+                setTimeout(() => {
+                    line.classList.remove('visible');
+                    if (translation && translation.classList.contains('story-line-translation')) {
+                        translation.classList.remove('visible');
+                    }
+
+                    setTimeout(() => {
+                        line.style.display = 'none';
+                        if (translation && translation.classList.contains('story-line-translation')) {
+                            translation.style.display = 'none';
+                        }
+
+                        currentIndex++;
+                        if (currentIndex < lines.length) {
+                            showNextLine();
+                        } else {
+                            console.log("End of Chapter 6");
+                            // Trigger Ending Sequence
+                            triggerEnding();
+                        }
+                    }, 500); // Standard fade out time
+                }, duration);
+            }
+
+            showNextLine();
+        }
+
+        function triggerEnding() {
+            // Hide UI if still visible
+            messageScreen.classList.remove('visible');
+            clockLayer.classList.remove('visible'); // Hide clock if it was shown
+            // webcamLayer.classList.remove('visible'); // Keep webcam visible for ending background
+
+            // 1. Fade out Audio
+            if (bgmT6) {
+                const fadeAudio = setInterval(() => {
+                    if (bgmT6.volume > 0.05) {
+                        bgmT6.volume -= 0.05;
+                    } else {
+                        bgmT6.volume = 0;
+                        bgmT6.pause();
+                        clearInterval(fadeAudio);
+                    }
+                }, 200); // Reduce volume every 200ms
+            }
+
+            // 2. Sequence: Title -> Credits
+            setTimeout(() => {
+                // Fade out background (Webcam & Clock)
+                if (webcamLayer) webcamLayer.classList.remove('visible');
+                if (clockLayer) clockLayer.classList.remove('visible');
+
+                // Show Title "사과와 나"
+                endingTitle.classList.add('visible');
+
+                // Hide Title after it's been shown for a while
+                setTimeout(() => {
+                    endingTitle.classList.remove('visible');
+
+                    // Show Credits after Title fades out
+                    setTimeout(() => {
+                        endingCredits.classList.add('visible');
+                        // Fade in button slightly after credits if desired, or with them (CSS handles it via parent opacity)
+                        if (returnBtn) {
+                            setTimeout(() => {
+                                returnBtn.style.opacity = '1';
+                                returnBtn.style.pointerEvents = 'auto'; // Enable clicking
+                                setCursorClick(); // Show CLICK cursor
+                            }, 1000);
+                        }
+                    }, 4000); // Wait for title to fade out (transition is 4s)
+                }, 6000); // Keep title visible for 6s (4s fade in + 2s hold)
+            }, 1000);
+        }
+
+        // Return Button Logic
+        if (returnBtn) {
+            returnBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent document click
+
+                const returnSound = document.getElementById('return-sound');
+                if (returnSound) {
+                    returnSound.play().catch(err => console.log("Return sound play failed", err));
+                }
+
+                // Wait for sound to play a bit before navigating
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            });
+        }
+
+        function handleEffects(index) {
+            switch (index) {
+                case 0: // Ding
+                    if (notificationSound) {
+                        notificationSound.play().catch(e => console.log("Notification play failed", e));
+                    }
+                    // Show Notification Banner
+                    notificationBanner.classList.add('visible');
+
+                    // Hide Banner after a few seconds
+                    setTimeout(() => {
+                        notificationBanner.classList.remove('visible');
+                    }, 3000);
+                    break;
+
+                case 3: // Mom said she is buying apples
+                    // Show Message Screen
+                    messageScreen.classList.add('visible');
+                    break;
+
+                case 5: // Looked in mirror
+                    // Hide Message Screen
+                    messageScreen.classList.remove('visible');
+                    // Show Webcam Layer
+                    if (webcamLayer) {
+                        webcamLayer.classList.add('visible');
+                    }
+                    break;
+                case 6: // Got ready
+                    // Keep Webcam Layer visible (contextually makes sense while getting ready)
+                    break;
+
+                case 7: // The time was...
+                    // Hide Webcam Layer
+                    if (webcamLayer) {
+                        webcamLayer.classList.remove('visible');
+                    }
+                    // Show Clock Layer
+                    clockLayer.classList.add('visible');
+                    if (clockSound) {
+                        clockSound.volume = 1.0;
+                        clockSound.currentTime = 0;
+                        clockSound.play().catch(e => console.log("Clock sound play failed", e));
+                    }
+                    // Play End Music
+                    if (endMusic) {
+                        endMusic.volume = 0.6; // Reduced volume to make clock sound clearer
+                        endMusic.play().catch(e => console.log("End music play failed", e));
+                    }
+                    break;
+            }
+        }
+
+        // Start on click
+        document.addEventListener('click', () => {
+            resetCursor();
+            startStory();
+        }, {
+            once: true
+        });
+    </script>
+</body>
+
+</html>
