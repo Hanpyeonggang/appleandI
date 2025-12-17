@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>사과와 나</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta name="description" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리. 사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다.">
+    <meta property="og:title" content="사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="thumbnail.png" />
+    <meta property="og:description" content="사과를 매개로 한 독특한 서사와 몰입감 있는 시각적 경험을 제공합니다." />
+    <meta property="og:video" content="thumbnail.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta property="og:video:width" content="1200" />
+    <meta property="og:video:height" content="630" />
+    <style>
+        /* 폰트 정의 */
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Bold';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'YeolrinMyeongjo-Medium';
+            src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Yoondesign/YeolrinMyeongjo-Medium.woff') format('woff');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        /* Shared Cursor Styles */
+        @import url('cursor.css');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* cursor: pointer; - Removed to use custom cursor */
+            height: 100vh;
+            word-break: keep-all;
+            position: relative;
+        }
+
+        /* 검은 화면용 노이즈 (배경에 적용) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.08;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        canvas {
+            display: block;
+            /* 흑백 + 대비 증가 (듀오톤 베이스) */
+            filter: grayscale(100%) contrast(1.5) brightness(0.9);
+            opacity: 0;
+            /* 처음에는 숨김 */
+            transition: opacity 2s ease-in-out;
+            /* 부드럽게 나타나기 */
+        }
+
+        canvas.visible {
+            opacity: 1;
+        }
+
+        /* 붉은 듀오톤 오버레이 */
+        .red-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            /* 강렬한 붉은색 오버레이 */
+            background: #ff0000;
+            /* 곱하기 모드로 흰색 부분을 붉게 만듦 */
+            mix-blend-mode: multiply;
+            z-index: 10;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* 심장박동 애니메이션 */
+        @keyframes heartbeat {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .heartbeat-slow {
+            animation: heartbeat 2s infinite ease-in-out;
+        }
+
+        .heartbeat-fast {
+            animation: heartbeat 0.6s infinite ease-in-out;
+        }
+
+        /* 대사 컨테이너 */
+        #dialogue-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            /* Flex 제거하고 absolute positioning 사용 */
+        }
+
+        .story-line {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 90%;
+            max-width: 800px;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            opacity: 0;
+            text-align: center;
+
+            /* 중앙 정렬 및 애니메이션 시작 위치 */
+            transform: translate(-50%, calc(-50% + 20px));
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .story-line.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        .story-line.hidden {
+            opacity: 0;
+            transform: translate(-50%, calc(-50% - 20px));
+        }
+
+        .story-line-translation {
+            position: absolute;
+            left: 50%;
+            bottom: 15%;
+            /* 화면 하단에 배치 */
+            width: 90%;
+            max-width: 800px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            text-align: center;
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+
+            /* 애니메이션 시작 위치 */
+            transform: translateX(-50%) translateY(20px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .story-line-translation.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .story-line-translation.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+        }
+
+        /* --- New Effects --- */
+        /* 1. Film Grain */
+        .film-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+            /* 오버레이 위, 텍스트 아래 */
+            opacity: 0.15;
+            /* 노이즈 강도 증가 */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* 2. Screen Glitch */
+        @keyframes glitch-skew {
+            0% {
+                transform: skew(0deg);
+            }
+
+            20% {
+                transform: skew(-10deg);
+            }
+
+            40% {
+                transform: skew(10deg);
+            }
+
+            60% {
+                transform: skew(-5deg);
+            }
+
+            80% {
+                transform: skew(5deg);
+            }
+
+            100% {
+                transform: skew(0deg);
+            }
+        }
+
+        body.glitch-active {
+            animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+        }
+
+        body.glitch-active canvas {
+            filter: invert(1);
+        }
+
+        /* 3. Interactive Keywords */
+        .keyword {
+            color: inherit;
+            font-weight: inherit;
+            cursor: inherit;
+        }
+
+        /* White Overlay for White Room Effect */
+        .white-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            mix-blend-mode: screen;
+            /* Or normal if we want to hide video */
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            z-index: 5;
+            /* Above video/canvas */
+            pointer-events: none;
+        }
+
+        /* White Room Effect */
+        body.white-room {
+            background-color: #ffffff;
+            transition: background-color 2s ease-in-out;
+        }
+
+        body.white-room .white-overlay {
+            opacity: 0.8;
+            /* Keep some video visibility or 1.0 for full white */
+        }
+
+        body.white-room .story-line {
+            color: #000000;
+            text-shadow: none;
+        }
+
+        body.white-room .story-line-translation {
+            color: rgba(0, 0, 0, 0.7);
+            text-shadow: none;
+        }
+
+        /* Red Room Effect */
+        body.red-room {
+            background-color: #ff0000;
+            /* Just red */
+            transition: background-color 2s ease-in-out;
+        }
+
+        /* Rising Blood Effect */
+        .rising-blood {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: linear-gradient(to top, #8a0000, #ff0000);
+            z-index: 12;
+            /* Above canvas, below text */
+            transition: height 10s ease-in-out;
+            opacity: 0.95;
+            pointer-events: none;
+        }
+
+        .rising-blood.full {
+            height: 100%;
+        }
+
+        /* Chapter Transition Screen */
+        #chapter-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 2s ease-in-out;
+            pointer-events: none;
+        }
+
+        #chapter-transition.hidden {
+            opacity: 0;
+        }
+
+        .chapter-content {
+            text-align: center;
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .chapter-content .chapter-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'YeolrinMyeongjo-Bold', serif;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-content .chapter-title {
+            font-size: 3rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .chapter-content .chapter-title-english {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'YeolrinMyeongjo-Medium', serif;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="display: none;">사과와 나: 꿈과 현실의 경계에서 펼쳐지는 인터랙티브 웹 스토리 (Apple and I: Interactive Web Story)</h1>
+
+
+    <div id="chapter-transition">
+        <div class="chapter-content">
+            <span class="chapter-number">제 3장</span><br>
+            <span class="chapter-title">사과와 자각몽</span>
+            <span class="chapter-title-english">Apple and Lucid Dream</span>
+        </div>
+    </div>
+
+    <script src="interactive.js"></script>
+    <script>
+        // Chapter Transition Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const transitionScreen = document.getElementById('chapter-transition');
+                if (transitionScreen) {
+                    transitionScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        transitionScreen.style.display = 'none';
+                    }, 2000); // Wait for transition to finish
+                }
+            }, 1000); // Show for 1 second
+        });
+    </script>
+    <video id="video" autoplay playsinline style="display:none"></video>
+    <canvas id="canvas"></canvas>
+    <div class="red-overlay"></div>
+    <div class="white-overlay"></div>
+    <div class="film-grain"></div>
+    <div class="rising-blood"></div>
+    <audio id="bgm" src="t3.mp3"></audio>
+    <audio id="heartbeat-sound" src="h.mp3"></audio>
+    <audio id="drum-sound" src="d.mp3"></audio>
+
+    <div id="dialogue-container">
+        <div class="story-line" data-show-duration="1800">…잠에 들었나 보다. 또 꿈속이다.</div>
+        <div class="story-line-translation">...I must have fallen asleep. It's a dream again.</div>
+
+        <div class="story-line" data-show-duration="4900">나는 <span class="keyword">자각몽</span>을 자주 꾼다.<br>내가 꾸는
+            자각몽은
+            항상
+            내가 <span class="keyword">죽어야</span> 끝이 난다.</div>
+        <div class="story-line-translation">I often have lucid dreams.<br>My lucid dreams always end only when
+            'I
+            die'.
+        </div>
+
+        <div class="story-line" data-show-duration="5000">그래서 나는 꿈을 즐기다가도 결국 <span class="keyword">자살</span>한다.<br>지금도
+            그럴 생각이다.</div>
+        <div class="story-line-translation">So even after enjoying the dream, I eventually commit suicide.<br>I
+            intend
+            to do the same now.</div>
+
+        <div class="story-line" data-show-duration="5000"><span class="keyword">거울</span>이 보인다.<br>내 얼굴을 거울 앞에
+            들이미니
+            입에서
+            <span class="keyword">피</span>가 새고 있다.
+        </div>
+        <div class="story-line-translation">I see a mirror.<br>As I thrust my face in front of the mirror, blood
+            is
+            leaking from my mouth.</div>
+
+        <div class="story-line" data-show-duration="5000">잇몸에서 <span class="keyword">피</span>가 송골송골 맺혀
+            떨어진다.<br>등골이
+            오싹하다.</div>
+        <div class="story-line-translation">Blood beads up on my gums and drips.<br>A chill runs down my spine.
+        </div>
+
+        <div class="story-line" data-show-duration="3500">여긴 꿈속이 분명한데, 내 가슴이 통제되지 않는다.</div>
+        <div class="story-line-translation">This is definitely a dream, but I can't control my chest.</div>
+
+        <div class="story-line" data-show-duration="5000"><span class="keyword">심장</span>이 뛴다. 펌프질을 한다.<br>펌프질
+            박자에
+            맞춰
+            <span class="keyword">피</span>가 똑똑 떨어진다.
+        </div>
+        <div class="story-line-translation">My heart beats. It pumps.<br>Blood drips to the rhythm of the
+            pumping.
+        </div>
+
+        <div class="story-line" data-show-duration="3000">쿵쿵쿵쿵…, 똑똑똑똑…</div>
+        <div class="story-line-translation">Thump thump thump thump..., Drip drip drip drip...</div>
+
+        <div class="story-line" data-show-duration="5300">정신을 차리려 했다. 마음을 다잡았다.<br>다잡으려는 순간, 곰곰이 생각했다.</div>
+        <div class="story-line-translation">I tried to pull myself together. I steadied my mind.<br>The moment I
+            tried
+            to steady it, I thought deeply.</div>
+
+        <div class="story-line" data-show-duration="6000">어떻게 <span class="keyword">죽어야</span> 할까.<br>어떻게 <span
+                class="keyword">죽어야</span> 이 꿈에서 일어날까.<br><span class="keyword">죽을</span> 방법이 없었다.</div>
+        <div class="story-line-translation">How should I die?<br>How must I die to wake from this
+            dream?<br>There
+            was no
+            way to die.</div>
+
+        <div class="story-line" data-show-duration="4300">흰 방에 나 혼자 덩그러니 앉아 빨간 <span class="keyword">피</span>를
+            뚝뚝
+            흘리고
+            있었다.</div>
+        <div class="story-line-translation">I was sitting alone in a white room, dripping red blood.</div>
+
+        <div class="story-line" data-show-duration="6100"><span class="keyword">피</span>는 한참을 떨어져 고였다. 웅덩이가
+            되었다.<br>새빨간
+            물 위에 내 얼굴이 비쳤다.</div>
+        <div class="story-line-translation">The blood dripped for a long time and pooled. It became a
+            puddle.<br>My
+            face
+            was reflected on the bright red water.</div>
+
+        <div class="story-line" data-show-duration="5000">문득 생각이 들었다.<br>‘사과 같은 내 얼굴, 예쁘기도 하지요~.’</div>
+        <div class="story-line-translation">Suddenly, a thought occurred to me.<br>'My face like an apple, isn't
+            it
+            pretty~.'</div>
+
+        <div class="story-line" data-show-duration="5000">비친 내 얼굴을 응시하며,<br>나는 그 노랫말만 되뇌었다.</div>
+        <div class="story-line-translation">Staring at my reflected face,<br>I repeated only those lyrics.</div>
+    </div>
+
+    <!-- MediaPipe FaceLandmarker (ES Module) -->
+    <script type="module">
+        import {
+            FilesetResolver,
+            FaceLandmarker
+        } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/+esm";
+
+        // 요소
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const redOverlay = document.querySelector('.red-overlay');
+        const risingBlood = document.querySelector('.rising-blood');
+
+        // 상태 변수
+        let isBleeding = false; // 피 흘림 효과 활성화 여부
+
+        let isAudioPlayed = false;
+
+        // 웹캠 켜기 (에러 핸들링 추가)
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.addEventListener("loadeddata", () => {
+                    predictWebcam();
+                });
+            } catch (err) {
+                console.error("웹캠 접근 오류:", err);
+                // alert("웹캠을 사용할 수 없습니다. 카메라 권한을 확인해주세요.\n" + err.message); // 방해되지 않게 경고 제거
+            }
+        }
+
+        // 초기화 로직 (자동 시작)
+        window.addEventListener('load', () => {
+            // 챕터 전환 효과(2초) + 여유 시간(0.5초) 후 자동 시작
+            if (!isAudioPlayed) {
+                isAudioPlayed = true;
+
+                setTimeout(() => {
+                    const bgm = document.getElementById("bgm");
+                    bgm.volume = 0.5; // 볼륨 0.5로 설정
+                    const playPromise = bgm.play();
+
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log("Autoplay prevented:", error);
+                            // 자동 재생 실패 시 클릭 유도 (보이지 않는 오버레이 등)가 필요할 수 있으나, 
+                            // 현재는 사용자의 요청대로 '클릭 없이'를 우선 시도합니다.
+                            // 실패하더라도 대사는 시작하도록 함
+                        });
+                    }
+
+                    // 대사 시작
+                    setTimeout(startDialogue, 500);
+                }, 2500);
+            }
+        });
+
+        // -------- 대사 처리 --------
+        function startDialogue() {
+            const lines = document.querySelectorAll('.story-line');
+            let currentIndex = 0;
+
+            function showNextLine() {
+                if (currentIndex >= lines.length) return;
+
+                const line = lines[currentIndex];
+                const showDuration = parseInt(line.dataset.showDuration) || 3000;
+                const hideDuration = 500;
+
+                // 대사 인덱스에 따른 효과 제어
+                // 0: ...잠에 들었나 보다.
+                // 3: 거울이 보인다... 입에서 피가... (피 흘림 시작 + 화면 보이기)
+                if (currentIndex === 3) {
+                    isBleeding = true;
+                    canvas.classList.add('visible'); // 화면 서서히 나타남
+                }
+                // 6: 심장이 뛴다... (느린 심장박동)
+                if (currentIndex === 6) {
+                    redOverlay.classList.add('heartbeat-slow');
+                    const heartbeatSound = document.getElementById("heartbeat-sound");
+                    heartbeatSound.play().catch(e => console.log("Heartbeat play failed:", e));
+
+                    // 한 번 더 재생 (총 2번)
+                    heartbeatSound.onended = function () {
+                        this.currentTime = 0;
+                        this.play();
+                        this.onended = null; // 무한 루프 방지
+                    };
+
+                    const drumSound = document.getElementById("drum-sound");
+                    drumSound.play().catch(e => console.log("Drum play failed:", e));
+                }
+                // 7: 쿵쿵쿵쿵... (빠른 심장박동)
+                if (currentIndex === 7) {
+                    redOverlay.classList.remove('heartbeat-slow');
+                    redOverlay.classList.add('heartbeat-fast');
+                }
+                // 8: 정신을 차리려 했다... (심장박동 멈춤/느리게)
+                if (currentIndex === 8) {
+                    redOverlay.classList.remove('heartbeat-fast');
+                    // redOverlay.classList.add('heartbeat-slow'); // 원하면 느리게 유지
+                }
+
+                // 10: 흰 방에 나 혼자... (White Room)
+                if (currentIndex === 10) {
+                    document.body.classList.add('white-room');
+                }
+
+                // 11: 피는 한참을 떨어져... (Rising Blood)
+                if (currentIndex === 11) {
+                    risingBlood.classList.add('full');
+
+                    // Switch to Red Room background immediately
+                    document.body.classList.add('red-room');
+
+                    // Keep text black (white-room style) indefinitely
+                    // setTimeout(() => {
+                    //    document.body.classList.remove('white-room');
+                    // }, 4000);
+                }
+
+                // 글리치 효과 트리거 (특정 단어가 포함된 대사일 때) - 웹캠이 보인 이후(index 3 이상)에만 작동
+                const text = line.textContent;
+                if ((text.includes('죽어야') || text.includes('자살') || text.includes('피')) && currentIndex >= 3) {
+                    document.body.classList.add('glitch-active');
+                    setTimeout(() => {
+                        document.body.classList.remove('glitch-active');
+                    }, 300); // 0.3초간 글리치
+                }
+
+                line.classList.add('visible');
+
+                // 영어 번역도 함께 표시 (다음 요소가 번역인 경우)
+                const nextElement = line.nextElementSibling;
+                if (nextElement && nextElement.classList.contains('story-line-translation')) {
+                    nextElement.classList.add('visible');
+                }
+
+                setTimeout(() => {
+                    line.classList.remove('visible');
+                    line.classList.add('hidden');
+
+                    // 영어 번역도 함께 사라지기
+                    if (nextElement && nextElement.classList.contains('story-line-translation')) {
+                        nextElement.classList.remove('visible');
+                        nextElement.classList.add('hidden');
+                    }
+
+                    setTimeout(() => {
+                        line.classList.remove('hidden'); // 다음 사용을 위해 초기화 (필요시)
+
+                        if (nextElement && nextElement.classList.contains('story-line-translation')) {
+                            nextElement.classList.remove('hidden');
+                        }
+
+                        currentIndex++;
+                        if (currentIndex < lines.length) {
+                            showNextLine();
+                        } else {
+                            // End of Chapter 3 -> Go to Chapter 4
+                            setTimeout(() => {
+                                window.location.href = '4.html';
+                            }, 2000);
+                        }
+                    }, hideDuration);
+                }, showDuration);
+            }
+
+            showNextLine();
+        }
+
+        // -------- 파티클 (피 눈물/침 효과) --------
+        let dropletParticles = []; // 피 물방울 파티클 배열
+
+        class DropletParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = Math.random() * 2 + 2; // 물방울 크기 약간 키움 (송골송골)
+                this.alpha = 0.9; // 진한 피
+                this.vx = (Math.random() - 0.5) * 0.1;
+                this.vy = 0; // 처음에 멈춰있음 (맺히는 느낌)
+                this.gravity = 0.05; // 서서히 떨어짐
+            }
+            update() {
+                this.x += this.vx;
+                this.vy += this.gravity;
+                this.y += this.vy;
+                this.alpha -= 0.005; // 조금 더 빨리 사라짐
+            }
+            draw(ctx) {
+                ctx.globalAlpha = this.alpha;
+                // 붉은 피 색상
+                ctx.fillStyle = "rgba(150, 0, 0, 0.9)";
+                ctx.filter = "blur(0.5px)";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 하이라이트
+                ctx.fillStyle = "rgba(255, 100, 100, 0.3)";
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.filter = "none";
+            }
+        }
+
+        // -------- 얼굴 인식 초기화 --------
+        let faceLandmarker = null;
+        let runningMode = "VIDEO";
+
+        async function createFaceLandmarker() {
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+            );
+            faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath:
+                        "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                    delegate: "GPU"
+                },
+                runningMode: runningMode,
+                numFaces: 1
+            });
+
+            // 모델 로드 후 웹캠 시작
+            startWebcam();
+        }
+
+        createFaceLandmarker();
+
+        // -------- 매 프레임 렌더 --------
+        let lastVideoTime = -1;
+        let results = undefined;
+
+        async function predictWebcam() {
+            // 캔버스 크기 맞춤
+            if (video.videoWidth && canvas.width !== video.videoWidth) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            }
+
+            // 얼굴 인식
+            if (faceLandmarker && video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+                results = faceLandmarker.detectForVideo(video, performance.now());
+            }
+
+            // 그리기
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 배경을 비디오로 (거울 모드: scaleX(-1))
+            ctx.save();
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // 파티클 생성 위치 계산 (거울 모드 고려)
+            // isBleeding이 true일 때만 파티클 생성
+            if (isBleeding && results && results.faceLandmarks && results.faceLandmarks.length > 0) {
+                const lm = results.faceLandmarks[0];
+
+                // 1. 입 중심 (13, 14번) - 피 효과 (천천히 흐름)
+                const mouthX = canvas.width * (1 - (lm[13].x + lm[14].x) / 2);
+                const mouthY = canvas.height * ((lm[13].y + lm[14].y) / 2);
+
+                // 파티클 생성 (랜덤성 추가)
+                // 1. 위치 랜덤: 입술 중심에서 좌우로 약간 퍼짐 (+- 5px)
+                const randomX = mouthX + (Math.random() - 0.5) * 10;
+
+                // 2. 빈도 랜덤: 생성 속도 느리게 (기본 5% 확률)
+                // 가끔 뭉쳐서 나오도록 (5% 확률로 30% 빈도)
+                let spawnChance = 0.05;
+                if (Math.random() < 0.05) spawnChance = 0.3;
+
+                if (Math.random() < spawnChance) {
+                    dropletParticles.push(new DropletParticle(randomX, mouthY));
+                }
+            }
+
+            // 파티클 업데이트 + 렌더
+            dropletParticles = dropletParticles.filter(p => p.alpha > 0);
+            dropletParticles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+            });
+
+            window.requestAnimationFrame(predictWebcam);
+        }
+    </script>
+</body>
+
+</html>
